@@ -310,7 +310,8 @@ public final class SLayoutIO {
                 writer.add(EF.createEndElement("", "", "cell"));
                 writer.add(NEWLINE);
             }
-            writer.flush(); 
+            writer.add(EF.createEndElement("", "", "layout"));
+            writer.flush();
             writer.add(EF.createEndDocument());
         } catch (XMLStreamException | IOException e) {
             // TODO Auto-generated catch block ignores the exception, but sends it to System.err and probably forge.log.

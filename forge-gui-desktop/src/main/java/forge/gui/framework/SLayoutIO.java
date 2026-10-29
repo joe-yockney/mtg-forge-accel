@@ -274,6 +274,14 @@ public final class SLayoutIO {
             fWriteTo = f0.getPath();
         }
 
+        // don't overwrite a good layout with one captured before the cells were sized (e.g. while minimized)
+        for (final DragCell cell : FView.SINGLETON_INSTANCE.getDragCells()) {
+            cell.updateRoughBounds();
+            if (cell.getRoughBounds().getW() <= 0 || cell.getRoughBounds().getH() <= 0) {
+                return;
+            }
+        }
+
         final XMLOutputFactory out = XMLOutputFactory.newInstance();
         XMLEventWriter writer = null;
         try(FileOutputStream fos = new FileOutputStream(fWriteTo);) {
@@ -521,6 +529,10 @@ public final class SLayoutIO {
                         else if (atrName.equals(Property.w)) w0 = Double.parseDouble(attribute.getValue());
                         else if (atrName.equals(Property.h)) h0 = Double.parseDouble(attribute.getValue());
                         else if (atrName.equals(Property.sel)) selectedId = EDocID.valueOf(attribute.getValue());
+                    }
+                    if (w0 <= 0 || h0 <= 0) {
+                        // a zero-size cell can't be shown or resized, so treat the whole layout as invalid
+                        throw new IllegalStateException("Layout cell has no size: w=" + w0 + ", h=" + h0);
                     }
                     currentKey = new LayoutInfo(new RectangleOfDouble(x0, y0, w0, h0), selectedId);
                 }
